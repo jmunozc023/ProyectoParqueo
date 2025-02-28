@@ -1,13 +1,14 @@
 ﻿@using System.Security.Claims
 
 @{
-    ViewData["Title"] = "Home Page";
+    ViewData["Title"] = "Inicio";
 }
 
 <div class="text-center">
 	@if (User.Identity!.IsAuthenticated)
 	{
 		<h1 class="display-4">Bienvenido, @User.Claims.Where(c => c.Type == ClaimTypes.Name).Select(c => c.Value).SingleOrDefault()</h1>
+		<h3 class="display-4">Rol: @User.Claims.Where(c => c.Type == ClaimTypes.Role).Select(c => c.Value).SingleOrDefault()</h3>
 	}
 
 </div>

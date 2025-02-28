@@ -1,0 +1,61 @@
+﻿@model ParqueoApp3.ViewModels.SeguridadVM;
+
+<html style="background-color: blueviolet;">
+<head>
+	<title>Acceso de seguridad</title>
+	<link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+</head>
+<body style="background-color: blueviolet;">
+	<h1 class="text-center mt-5">Acceso de seguridad</h1>
+	<div class="row mt-5 justify-content-center" style="background-color: blueviolet;">
+		<div class="col-lg-3">
+			<div class="form-group">
+				<select>
+					<option value="Parqueo" disabled selected>Parqueo</option>
+				</select>
+				<button type="submit" class="btn btn-primary mt-3">Guardar</button>
+			</div>
+			
+		</div>
+	</div>
+	
+	
+	<div class="row mt-5 justify-content-center" style="background-color: blueviolet;">
+		<div class="col-sm-4">
+			<div class="card">
+				<div class="card-header">
+					<h3>Ingresos y salidas de vehiculos</h3>
+				</div>
+				<div class="card-body">
+					<form asp-controller="Home" asp-action="Seguridad" method="post">
+						<div class="form-group">
+							<label for="placa">Placa del Vehículo</label>
+							<input type="text" class="form-control" id="placa" name="placa" required />
+						</div>
+						<div class="form-group mt-3">
+							<label for="fechaIngreso">Fecha y Hora de Ingreso</label>
+							<input type="text" class="form-control" id="fechaIngreso" name="fechaIngreso" value="@DateTime.Now.ToString("g")" readonly />
+						</div>
+						<div class="form-group mt-3">
+							<label for="estadoParqueo">Estado del Parqueo</label>
+							<div id="estadoParqueo" class="mt-2">
+								@* @if (Model.HayEspaciosDisponibles)
+								{
+									<span class="badge bg-success">Disponible</span>
+								}
+								else
+								{
+									<span class="badge bg-danger">No Disponible</span>
+								} *@
+							</div>
+						</div>
+						<button type="submit" class="btn btn-primary mt-3">Ingresar Vehículo</button>
+					</form>
+				</div>
+			</div>
+		</div>
+	</div>
+	<script src="~/lib/jquery/dist/jquery.min.js"></script>
+	<script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
