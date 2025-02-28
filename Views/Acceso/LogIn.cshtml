@@ -1,0 +1,42 @@
+﻿@model ParqueoApp3.ViewModels.LogInVM;
+@{Layout = null;}
+
+<html style="background-color: blueviolet;">
+<head>
+	<title>Ingresar</title>
+	<link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+
+</head>
+<body>
+	<div class="row mt-5 justify-content-center" style="background-color: blueviolet;">
+		<div class="col-sm-4">
+			<div class="card">
+				<div class="card-header">
+					<h3>Inicio de Sesion</h3>
+				</div>
+				<div class="card-body">
+					<form asp-controller="Acceso" asp-action="LogIn" method="post">
+						<input class="form-control mb-3" type="email" placeholder="Correo electronico" required asp-for="correo" />
+						<input class="form-control mb-3" type="password" placeholder="Password" required asp-for="password" />
+						<button class="btn btn-primary btn-block" type="submit">Ingresar</button>
+						@if (ViewData["Mensaje"] != null)
+						{
+							<div class="alert alert-danger" role="alert">
+								@ViewData["Mensaje"]
+							</div>
+						}
+						No tienes una cuenta? <a asp-controller="Acceso" asp-action="Registrarse">Registrate</a>
+					</form>
+
+				</div>
+			</div>
+
+		</div>
+	</div>
+
+
+
+	<script src="~/lib/jquery/dist/jquery.min.js"></script>
+	<script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
