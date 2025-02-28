@@ -46,6 +46,31 @@ namespace ParqueoApp3.Controllers
 
             return View();
         }
+        [HttpPut]
+        
+        public async Task<IActionResult> PerfilUsuario(PerfilVM modelo)
+        {
+            Usuario usuario = await _appDBcontext.Usuarios.FindAsync(modelo.correo);
+            if (usuario == null) return NotFound();
+            usuario.nombre = modelo.nombre;
+            usuario.apellido = modelo.apellido;
+            usuario.correo = modelo.correo;
+            usuario.password = modelo.password;
+            usuario.role = modelo.role;
+            _appDBcontext.Usuarios.Update(usuario);
+
+            // Update the vehicles associated with the user
+            var vehiculos = await _appDBcontext.Vehiculos.Where(v => v.id_usuario == usuario.id_usuario).ToListAsync();
+            foreach (var vehiculo in vehiculos)
+            {
+                vehiculo.placa = modelo.placa; // Assuming modelo has a property for the new plate number
+                _appDBcontext.Vehiculos.Update(vehiculo);
+            }
+
+            await _appDBcontext.SaveChangesAsync();
+            return RedirectToAction("Index", "Home");
+
+        }
 
         [HttpGet]
         public IActionResult LogIn()
@@ -77,6 +102,58 @@ namespace ParqueoApp3.Controllers
             await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, new ClaimsPrincipal(claimsIdentity), authProperties);
 
             return RedirectToAction("Index", "Home");
+        }
+        [HttpGet]
+       
+        public async Task<IActionResult> AdminParqueos()
+        {
+            var parqueos = await _appDBcontext.Parqueos.ToListAsync();
+            return View(parqueos);
+        }
+        [HttpPost]
+        public async Task<IActionResult> Parqueos(Parqueo modelo)
+        {
+            Parqueo parqueo = new Parqueo
+            {
+                nombre_parqueo = modelo.nombre_parqueo,
+                ubicacion = modelo.ubicacion
+            };
+            await _appDBcontext.Parqueos.AddAsync(modelo);
+            await _appDBcontext.SaveChangesAsync();
+            return RedirectToAction("Index", "Home");
+        }
+        [HttpGet]
+        public async Task<IActionResult> AdminEspacios()
+        {
+            var espacios = await _appDBcontext.Espacios.ToListAsync();
+            return View(espacios);
+        }
+        [HttpPost]
+        public async Task<IActionResult> Espacios(Espacio modelo)
+        {
+            Espacio espacio = new Espacio
+            {
+                tipo_espacio = modelo.tipo_espacio,
+                disponibilidad = modelo.disponibilidad
+            };
+            await _appDBcontext.Espacios.AddAsync(modelo);
+            await _appDBcontext.SaveChangesAsync();
+            return RedirectToAction("Index", "Home");
+        }
+        [HttpGet]
+        public async Task<IActionResult> ContarEspacios()
+        {
+            var espaciosContados = await _appDBcontext.Espacios
+                .GroupBy(e => new { e.tipo_espacio, e.id_parqueo })
+                .Select(g => new
+                {
+                    TipoEspacio = g.Key.tipo_espacio,
+                    IdParqueo = g.Key.id_parqueo,
+                    Cantidad = g.Count()
+                })
+                .ToListAsync();
+
+            return View(espaciosContados);
         }
     }
 }

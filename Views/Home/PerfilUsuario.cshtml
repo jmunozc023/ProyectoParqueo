@@ -1,0 +1,43 @@
+﻿@model ParqueoApp3.ViewModels.PerfilVM;
+
+<html style="background-color: blueviolet;">
+<head>
+	<title>Modifica tu usuario</title>
+	<link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+</head>
+<body style="background-color: blueviolet;">
+	<h1 class="text-center mt-5">Modifica tu usuario</h1>
+	<div class="row mt-5 justify-content-center" style="background-color: blueviolet;">
+		<div class="col-sm-4">
+			<div class="card">
+				<div class="card-header">
+					<h3>Perfil</h3>
+				</div>
+				<div class="card-body">
+					
+                    <form asp-controller="Home" asp-action="PerfilUsuario" method="post">
+                        <input type="hidden" name="_method" value="put"/>
+                        <input class="form-control mb-3" type="text" placeholder="Nombre" required asp-for="nombre"  />
+						<input class="form-control mb-3" type="text" placeholder="Apellido" required asp-for="apellido"  />
+						<input class="form-control mb-3" type="email" placeholder="Correo electronico" required asp-for="correo" />
+                        <input class="form-control mb-3" type="password" placeholder="Password" required asp-for="password" />
+						<input class="form-control mb-3" type="text" placeholder="Rol" required asp-for="role" />
+						<input class="form-control mb-3" type="text" placeholder="Placa 1" required asp-for="placa" />
+						<input class="form-control mb-3" type="text" placeholder="Placa 2" required asp-for="placa2" />
+                        <button class="btn btn-primary btn-block" type="submit">Modificar</button>
+
+                        @* @if (ViewData["Mensaje"] != null)
+                        {
+                            <div class="alert alert-success" role="alert">
+                                @ViewData["Mensaje"]
+                            </div>
+                        } *@
+                    </form>
+				</div>
+			</div>
+		</div>
+	</div>
+	<script src="~/lib/jquery/dist/jquery.min.js"></script>
+	<script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

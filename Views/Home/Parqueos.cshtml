@@ -1,0 +1,81 @@
+﻿@model ParqueoApp3.ViewModels.ParqueosVM
+@inject IEnumerable<ParqueoApp3.Models.Parqueo> Parqueos
+@inject IEnumerable<ParqueoApp3.Models.Espacio> Espacios
+
+<html style="background-color: blueviolet;">
+<head>
+	<title>Administracion de parqueos</title>
+	<link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+</head>
+<body style="background-color: blueviolet;">
+	<h1 class="text-center mt-5">Administracion de parqueos</h1>
+	<div class="row mt-8 justify-content-center" style="background-color: blueviolet;">
+        <div class="col-md-6">
+			<div class="card">
+				<div class="card-header">
+					<h3>Parqueos</h3>
+				</div>
+				<div class="card-body">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Nombre del Parqueo</th>
+                                <th>Ubicación</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var parqueo in Parqueos)
+                            {
+                                <tr>
+                                    <td>@parqueo.nombre_parqueo</td>
+                                    <td>@parqueo.ubicacion</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                    <div class="row accordion-body">
+						<input class="form-control mb-3" type="text" placeholder="Nombre del parqueo" required asp-for="nombre_parqueo" />
+						<input class="form-control mb-3" type="text" placeholder="Ubicación" required asp-for="ubicacion" />
+						<div class="col-md-6">
+							<button class="btn btn-primary btn-block" type="submit">Agregar</button>
+						</div>
+						<div class="col-md-6">
+							<button class="btn btn-primary btn-block" type="submit">Eliminar</button>
+						</div>
+
+                    </div>
+					<div class="col-md-6">
+						<h3>Parqueos</h3>
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Tipo de Espacio</th>
+                                    <th>ID Parqueo</th>
+                                    <th>Cantidad</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var item in Espacios)
+                                {
+                                    <tr>
+                                        <td>@item.tipo_espacio</td>
+                                        <td>@item.id_parqueo</td>
+                                        <td>@item.disponibilidad</td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+
+
+					</div>
+				</div>
+			</div>
+        </div>
+   
+       
+		
+	</div>
+	<script src="~/lib/jquery/dist/jquery.min.js"></script>
+	<script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

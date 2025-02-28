@@ -22,7 +22,11 @@ public class HomeController : Controller
         return View();
     }
 
-    public IActionResult Privacy()
+    public IActionResult PerfilUsuario()
+    {
+        return View();
+    }
+    public IActionResult Parqueos()
     {
         return View();
     }
