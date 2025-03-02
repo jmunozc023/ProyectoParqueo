@@ -104,11 +104,18 @@ namespace ParqueoApp3.Controllers
             return RedirectToAction("Index", "Home");
         }
         [HttpGet]
-       
-        public async Task<IActionResult> AdminParqueos()
+        public async Task<IActionResult> Parqueos()
         {
             var parqueos = await _appDBcontext.Parqueos.ToListAsync();
-            return View(parqueos);
+            var espacios = await _appDBcontext.Espacios.ToListAsync();
+
+            var viewModel = new ParqueosViewModel
+            {
+                Parqueos = parqueos,
+                Espacios = espacios
+            };
+
+            return View(viewModel);
         }
         [HttpPost]
         public async Task<IActionResult> Parqueos(Parqueo modelo)
@@ -122,12 +129,7 @@ namespace ParqueoApp3.Controllers
             await _appDBcontext.SaveChangesAsync();
             return RedirectToAction("Index", "Home");
         }
-        [HttpGet]
-        public async Task<IActionResult> AdminEspacios()
-        {
-            var espacios = await _appDBcontext.Espacios.ToListAsync();
-            return View(espacios);
-        }
+  
         [HttpPost]
         public async Task<IActionResult> Espacios(Espacio modelo)
         {
@@ -155,5 +157,10 @@ namespace ParqueoApp3.Controllers
 
             return View(espaciosContados);
         }
+    }
+    public class ParqueosViewModel
+    {
+        public List<Parqueo> Parqueos { get; set; }
+        public List<Espacio> Espacios { get; set; }
     }
 }
