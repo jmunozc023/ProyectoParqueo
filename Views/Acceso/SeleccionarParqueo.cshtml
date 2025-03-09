@@ -1,9 +1,11 @@
-﻿@model ParqueoApp3.ViewModels.LogInVM;
-@{Layout = null;}
+﻿@model ParqueoApp3.ViewModels.SeleccionarParqueoVM;
+@{
+	Layout = null;
+}
 
 <html style="background-color: blueviolet;">
 <head>
-	<title>Ingresar</title>
+	<title>Seleccion de parqueo</title>
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 	<link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
 </head>
@@ -14,12 +16,17 @@
 				<h1 class="text-center">Sistema de Parqueos ULACIT</h1>
 				<div class="card">
 					<div class="card-header">
-						<h3 class="text-center">Inicio de Sesion</h3>
+						<h3 class="text-center">Seleccion de parqueo</h3>
 					</div>
 					<div class="card-body">
-						<form asp-controller="Acceso" asp-action="LogIn" method="post">
-							<input class="form-control mb-3" type="email" placeholder="Correo electronico" required asp-for="correo" />
-							<input class="form-control mb-3" type="password" placeholder="Password" required asp-for="password" />
+						<p>Seleccione el parqueo al que fue designado</p>
+						<form asp-controller="Acceso" asp-action="SeleccionarParqueo" method="post">
+                            <select class="form-control mb-3" asp-for="nombre_parqueo">
+                                @foreach (var parqueo in (List<ParqueoApp3.Models.Parqueo>)ViewData["Parqueos"]!)
+                                {
+                                    <option value="@parqueo.id_parqueo">@parqueo.nombre_parqueo</option>
+                                }
+                            </select>
 							<button class="btn btn-primary btn-block" type="submit">Ingresar</button>
 							@if (ViewData["Mensaje"] != null)
 							{

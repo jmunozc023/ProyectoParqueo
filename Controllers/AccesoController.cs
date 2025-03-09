@@ -24,11 +24,19 @@ namespace ParqueoApp3.Controllers
         [HttpPost]
         public async Task<IActionResult> Registrarse(UsuarioVM modelo)
         {
-            if(modelo.password != modelo.confirmarClave)
+            if (modelo.password != modelo.confirmarClave)
             {
                 ViewData["Mensaje"] = "Las contraseñas no coinciden";
                 return View();
             }
+
+            bool emailExists = await _appDBcontext.Usuarios.AnyAsync(u => u.correo == modelo.correo);
+            if (emailExists)
+            {
+                ViewData["Mensaje"] = "El correo ya está registrado";
+                return View();
+            }
+
             Usuario usuario = new Usuario
             {
                 nombre = modelo.nombre,
@@ -41,7 +49,7 @@ namespace ParqueoApp3.Controllers
             await _appDBcontext.Usuarios.AddAsync(usuario);
             await _appDBcontext.SaveChangesAsync();
 
-            if(usuario.id_usuario != 0) return RedirectToAction("LogIn", "Acceso");
+            if (usuario.id_usuario != 0) return RedirectToAction("LogIn", "Acceso");
             ViewData["Mensaje"] = "Error al registrar el usuario";
 
             return View();
@@ -75,18 +83,32 @@ namespace ParqueoApp3.Controllers
         [HttpGet]
         public IActionResult LogIn()
         {
-            if(User.Identity!.IsAuthenticated) return RedirectToAction("Index", "Home");
+            if (User.Identity!.IsAuthenticated) return RedirectToAction("Index", "Home");
             return View();
         }
 
         [HttpPost]
         public async Task<IActionResult> LogIn(LogInVM modelo)
-        { 
-            Usuario? usuario_encontrado = await _appDBcontext.Usuarios.Where(u => u.correo == modelo.correo && u.password == modelo.password).FirstOrDefaultAsync();
+        {
+            Usuario? usuario_encontrado = await _appDBcontext.Usuarios
+                .Where(u => u.correo == modelo.correo && u.password == modelo.password)
+                .FirstOrDefaultAsync();
+
             if (usuario_encontrado == null)
             {
                 ViewData["Mensaje"] = "Usuario no encontrado";
                 return View();
+            }
+
+            if (usuario_encontrado.password == "default_password") // Assuming "default_password" is the initial password
+            {
+                ViewData["Mensaje"] = "Debe cambiar su contraseña la primera vez que ingresa";
+                return RedirectToAction("CambiarContrasena", "Acceso");
+            }
+            if (usuario_encontrado.role == "Seguridad")
+            {
+                ViewData["Mensaje"] = "Debe seleccionar el parqueo al que está asignado";
+                return RedirectToAction("SeleccionarParqueo", "Acceso");
             }
 
             List<Claim> claims = new List<Claim>()
@@ -103,6 +125,83 @@ namespace ParqueoApp3.Controllers
 
             return RedirectToAction("Index", "Home");
         }
+
+        [HttpGet]
+        public IActionResult CambiarContrasena(string correo)
+        {
+            ViewData["Correo"] = correo;
+            return View();
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> CambiarContrasena(string correo, string nuevaContrasena)
+        {
+            Usuario? usuario = await _appDBcontext.Usuarios.Where(u => u.correo == correo).FirstOrDefaultAsync();
+            if (usuario == null) return NotFound();
+
+            usuario.password = nuevaContrasena;
+            _appDBcontext.Usuarios.Update(usuario);
+            await _appDBcontext.SaveChangesAsync();
+
+            return RedirectToAction("LogIn", "Acceso");
+        }
+
+        [HttpGet]
+        public IActionResult SeleccionarParqueo(string correo)
+        {
+            ViewData["Correo"] = correo;
+            ViewData["Parqueos"] = _appDBcontext.Parqueos.ToList();
+            return View();
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> SeleccionarParqueo(string correo, string parqueo)
+        {
+            Usuario? usuario = await _appDBcontext.Usuarios.Where(u => u.correo == correo).FirstOrDefaultAsync();
+            Parqueo? parqueoSeleccionado = await _appDBcontext.Parqueos.Where(p => p.nombre_parqueo == parqueo).FirstOrDefaultAsync();
+            if (usuario == null || parqueoSeleccionado == null) return NotFound();
+
+            // Add the assigned parqueo to the user's claims
+            List<Claim> claims = new List<Claim>
+            {
+                new Claim(ClaimTypes.Name, usuario.correo),
+                new Claim(ClaimTypes.Role, usuario.role),
+                new Claim("AssignedParqueo", parqueoSeleccionado.nombre_parqueo)
+            };
+            ClaimsIdentity claimsIdentity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
+            AuthenticationProperties authProperties = new AuthenticationProperties
+            {
+                AllowRefresh = true,
+            };
+            await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, new ClaimsPrincipal(claimsIdentity), authProperties);
+
+            return RedirectToAction("Index", "Home");
+        }
+
+        //[HttpPost]
+        //public async Task<IActionResult> LogIn(LogInVM modelo)
+        //{ 
+        //    Usuario? usuario_encontrado = await _appDBcontext.Usuarios.Where(u => u.correo == modelo.correo && u.password == modelo.password).FirstOrDefaultAsync();
+        //    if (usuario_encontrado == null)
+        //    {
+        //        ViewData["Mensaje"] = "Usuario no encontrado";
+        //        return View();
+        //    }
+
+        //    List<Claim> claims = new List<Claim>()
+        //    {
+        //        new Claim(ClaimTypes.Name, usuario_encontrado.correo),
+        //        new Claim(ClaimTypes.Role, usuario_encontrado.role)
+        //    };
+        //    ClaimsIdentity claimsIdentity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
+        //    AuthenticationProperties authProperties = new AuthenticationProperties
+        //    {
+        //        AllowRefresh = true,
+        //    };
+        //    await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, new ClaimsPrincipal(claimsIdentity), authProperties);
+
+        //    return RedirectToAction("Index", "Home");
+        //}
         [HttpGet]
         public async Task<IActionResult> Parqueos()
         {
