@@ -22,11 +22,13 @@
 						<p>Seleccione el parqueo al que fue designado</p>
 						<form asp-controller="Acceso" asp-action="SeleccionarParqueo" method="post">
                             <select class="form-control mb-3" asp-for="nombre_parqueo">
-                                @foreach (var parqueo in (List<ParqueoApp3.Models.Parqueo>)ViewData["Parqueos"]!)
+                                @foreach (var parqueo in (List<Parqueo>)ViewData["Parqueos"]!)
                                 {
-                                    <option value="@parqueo.id_parqueo">@parqueo.nombre_parqueo</option>
+                                    <option value="@parqueo.nombre_parqueo">@parqueo.nombre_parqueo</option>
                                 }
                             </select>
+							<input type="hidden" name="UserEmail" value="@ViewData["UserEmail"]" />
+							<input type="hidden" name="UserRole" value="@ViewData["UserRole"]" />
 							<button class="btn btn-primary btn-block" type="submit">Ingresar</button>
 							@if (ViewData["Mensaje"] != null)
 							{

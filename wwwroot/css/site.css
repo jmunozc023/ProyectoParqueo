@@ -21,6 +21,7 @@ html {
 body {
     margin-bottom: 60px;
     background-color: blueviolet;
+    overflow-y: scroll;
 }
 nav {
     background-color: darkorchid;

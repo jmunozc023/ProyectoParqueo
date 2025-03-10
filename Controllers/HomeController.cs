@@ -21,7 +21,11 @@ public class HomeController : Controller
     {
         return View();
     }
-
+    [Authorize(Roles = "Administrador")]
+    public IActionResult AdministrarUsuario()
+    {
+        return View();
+    }
     public IActionResult PerfilUsuario()
     {
         return View();
@@ -33,7 +37,7 @@ public class HomeController : Controller
         return View();
     }
 
-    [Authorize (Roles = "Administrador,Seguridad")]
+    [Authorize (Roles = "Seguridad")]
     public IActionResult Seguridad()
     {
         return View();
