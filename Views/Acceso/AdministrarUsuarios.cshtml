@@ -2,61 +2,150 @@
 
 <html style="background-color: blueviolet;">
 <head>
-	<title>Administracion de Usuarios</title>
-	<link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
-
+    <title>Administracion de Usuarios</title>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
 </head>
 <body style="background-color: blueviolet;">
-	<div class="row mt-5 justify-content-center" style="background-color: blueviolet;">
-		<div class="col-sm-4">
-			<div class="card">
-				<div class="card-header">
-					<h3>Registro de Usuarios</h3>
-				</div>
-				<div class="card-body">
-					<form asp-controller="Acceso" asp-action="AdministrarUsuarios" method="post">
-						<input class="form-control mb-3" type="text" placeholder="Nombre" required asp-for="nombre" />
-						<input class="form-control mb-3" type="text" placeholder="Apellido" required asp-for="apellido" />
-						<input class="form-control mb-3" type="email" placeholder="Correo electronico" required asp-for="correo" />
-						<input class="form-control mb-3" type="password" placeholder="Password" required asp-for="password" />
-						<select class="form-control mb-3" placeholder="Rol" required asp-for="role">
-							<option disabled selected value="Rol">Rol</option>
-							<option value="Administrador">Administrador</option>
-							<option value="Usuario">Usuario</option>
-							<option value="Seguridad">Seguridad</option>
-						</select>
-						<select class="form-control mb-3" placeholder="Tipo de vehiculo" required asp-for="tipo_vehiculo">
-							<option disabled selected value="Seleccione el tipo de vehiculo">Seleccione el tipo de vehiculo</option>
-							<option value="Automovil">Automovil</option>
-							<option value="Motocicleta">Motocicleta</option>
-							<option value="Discapacitado">Discapacitado</option>
-						</select>
-						<input class="form-control mb-3" type="text" placeholder="Placa" required asp-for="placa" />
-						<select class="form-control mb-3" placeholder="Tipo de vehiculo" required asp-for="tipo_vehiculo">
-							<option disabled selected value="Seleccione el tipo de vehiculo">Seleccione el tipo de vehiculo</option>
-							<option value="Automovil">Automovil</option>
-							<option value="Motocicleta">Motocicleta</option>
-							<option value="Discapacitado">Discapacitado</option>
-						</select>
-						<input class="form-control mb-3" type="text" placeholder="Placa" required asp-for="placa" />
-						<button class="btn btn-primary btn-block" type="submit">Registrar</button>
-						@if (ViewData["Mensaje"] != null)
-						{
-							<div class="alert alert-danger" role="alert">
-								@ViewData["Mensaje"]
-							</div>
-						}
-					</form>
+    <div class="row mt-5 justify-content-center" style="background-color: blueviolet;">
+        <div class="col-sm-4">
+            <div class="card">
+                <div class="card-header">
+                    <h3>Registro de Usuarios</h3>
+                </div>
+                <div class="card-body">
+                    <form asp-controller="Acceso" asp-action="AdministrarUsuarios" method="post">
+                        <input class="form-control mb-3" type="text" placeholder="Nombre" required asp-for="nombre" />
+                        <input class="form-control mb-3" type="text" placeholder="Apellido" required asp-for="apellido" />
+                        <input class="form-control mb-3" type="email" placeholder="Correo electronico" required asp-for="correo" />
+                        <input class="form-control mb-3" type="password" placeholder="Password" required asp-for="password" />
+                        <select class="form-control mb-3" placeholder="Rol" required asp-for="role">
+                            <option disabled selected value="Rol">Rol</option>
+                            <option value="Administrador">Administrador</option>
+                            <option value="Usuario">Usuario</option>
+                            <option value="Seguridad">Seguridad</option>
+                        </select>
+                        <select class="form-control mb-3" placeholder="Tipo de vehiculo 1" required asp-for="tipo_vehiculo1">
+                            <option disabled selected value="Seleccione el tipo de vehiculo">Seleccione el tipo de vehiculo</option>
+                            <option value="Automovil">Automovil</option>
+                            <option value="Motocicleta">Motocicleta</option>
+                            <option value="Discapacitado">Discapacitado</option>
+                        </select>
+                        <input class="form-control mb-3" type="text" placeholder="Placa 1" required asp-for="placa1" />
+                        <select class="form-control mb-3" placeholder="Tipo de vehiculo 2" required asp-for="tipo_vehiculo2">
+                            <option disabled selected value="Seleccione el tipo de vehiculo">Seleccione el tipo de vehiculo</option>
+                            <option value="Automovil">Automovil</option>
+                            <option value="Motocicleta">Motocicleta</option>
+                            <option value="Discapacitado">Discapacitado</option>
+                        </select>
+                        <input class="form-control mb-3" type="text" placeholder="Placa 2" required asp-for="placa2" />
+                        <button class="btn btn-primary btn-block" type="submit">Registrar</button>
+                        @if (ViewData["Mensaje"] != null)
+                        {
+                            <div class="alert alert-danger" role="alert">
+                                @ViewData["Mensaje"]
+                            </div>
+                        }
+                    </form>
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-8">
+            <div class="card">
+                <div class="card-header">
+                    <h3>Modificar/Eliminar Usuarios</h3>
+                </div>
+                <div class="card-body">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>Nombre</th>
+                                <th>Apellido</th>
+                                <th>Correo</th>
+                                <th>Rol</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var user in Model.Usuarios)
+                            {
+                                <tr onclick="fillForm('@user.Id', '@user.Nombre', '@user.Apellido', '@user.Correo', '@user.Role', '@user.TipoVehiculo1', '@user.Placa1', '@user.TipoVehiculo2', '@user.Placa2')">
+                                    <td>@user.Nombre</td>
+                                    <td>@user.Apellido</td>
+                                    <td>@user.Correo</td>
+                                    <td>@user.Role</td>
+                                    <td>
+                                        <button class="btn btn-warning" type="button" onclick="modifyUser('@user.Id')">Modificar</button>
+                                        <button class="btn btn-danger" type="button" onclick="deleteUser('@user.Id')">Eliminar</button>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                    <form id="modifyDeleteForm" asp-controller="Acceso" asp-action="ModificarEliminarUsuario" method="post">
+                        <input type="hidden" id="selectedUserId" name="selectedUserId" />
+                        <input class="form-control mb-3" type="text" placeholder="Nombre" required asp-for="nombre" />
+                        <input class="form-control mb-3" type="text" placeholder="Apellido" required asp-for="apellido" />
+                        <input class="form-control mb-3" type="email" placeholder="Correo electronico" required asp-for="correo" />
+                        <input class="form-control mb-3" type="password" placeholder="Password" required asp-for="password" />
+                        <select class="form-control mb-3" placeholder="Rol" required asp-for="role">
+                            <option disabled selected value="Rol">Rol</option>
+                            <option value="Administrador">Administrador</option>
+                            <option value="Usuario">Usuario</option>
+                            <option value="Seguridad">Seguridad</option>
+                        </select>
+                        <select class="form-control mb-3" placeholder="Tipo de vehiculo 1" required asp-for="tipo_vehiculo1">
+                            <option disabled selected value="Seleccione el tipo de vehiculo">Seleccione el tipo de vehiculo</option>
+                            <option value="Automovil">Automovil</option>
+                            <option value="Motocicleta">Motocicleta</option>
+                            <option value="Discapacitado">Discapacitado</option>
+                        </select>
+                        <input class="form-control mb-3" type="text" placeholder="Placa 1" required asp-for="placa1" />
+                        <select class="form-control mb-3" placeholder="Tipo de vehiculo 2" required asp-for="tipo_vehiculo2">
+                            <option disabled selected value="Seleccione el tipo de vehiculo">Seleccione el tipo de vehiculo</option>
+                            <option value="Automovil">Automovil</option>
+                            <option value="Motocicleta">Motocicleta</option>
+                            <option value="Discapacitado">Discapacitado</option>
+                        </select>
+                        <input class="form-control mb-3" type="text" placeholder="Placa 2" required asp-for="placa2" />
+                        <button class="btn btn-warning btn-block" type="submit" name="action" value="modify">Modificar</button>
+                        <button class="btn btn-danger btn-block" type="submit" name="action" value="delete">Eliminar</button>
+                        @if (ViewData["Mensaje"] != null)
+                        {
+                            <div class="alert alert-danger" role="alert">
+                                @ViewData["Mensaje"]
+                            </div>
+                        }
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        function fillForm(id, nombre, apellido, correo, role, tipoVehiculo1, placa1, tipoVehiculo2, placa2) {
+            document.getElementById('selectedUserId').value = id;
+            document.getElementById('nombre').value = nombre;
+            document.getElementById('apellido').value = apellido;
+            document.getElementById('correo').value = correo;
+            document.getElementById('role').value = role;
+            document.getElementById('tipo_vehiculo1').value = tipoVehiculo1;
+            document.getElementById('placa1').value = placa1;
+            document.getElementById('tipo_vehiculo2').value = tipoVehiculo2;
+            document.getElementById('placa2').value = placa2;
+        }
 
-				</div>
-			</div>
+        function modifyUser(id) {
+            document.getElementById('selectedUserId').value = id;
+            document.getElementById('modifyDeleteForm').submit();
+        }
 
-		</div>
-	</div>
-
-
-
-	<script src="~/lib/jquery/dist/jquery.min.js"></script>
-	<script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+        function deleteUser(id) {
+            if (confirm('¿Está seguro de que desea eliminar este usuario?')) {
+                document.getElementById('selectedUserId').value = id;
+                document.getElementById('modifyDeleteForm').submit();
+            }
+        }
+    </script>
 </body>
 </html>

@@ -14,7 +14,8 @@ namespace ParqueoApp3.Controllers
     public class AccesoController : Controller
     {
         private readonly AppDBContext _appDBcontext;
-        public AccesoController(AppDBContext appDBContext) {
+        public AccesoController(AppDBContext appDBContext)
+        {
             _appDBcontext = appDBContext;
         }
         [HttpGet]
@@ -24,6 +25,8 @@ namespace ParqueoApp3.Controllers
             ViewData["Vehiculos"] = _appDBcontext.Vehiculos.ToList();
             return View();
         }
+        // ...
+
         [HttpPost]
         public async Task<IActionResult> AdministrarUsuarios(AdministrarUsuariosVM modelo)
         {
@@ -52,17 +55,21 @@ namespace ParqueoApp3.Controllers
                     await _appDBcontext.Usuarios.AddAsync(usuario);
                     await _appDBcontext.SaveChangesAsync();
 
-                    var vehiculos = new List<Vehiculo>();
-                    foreach (var vehiculoVM in vehiculos)
+                    var vehiculos = new List<Vehiculo>
                     {
-                        var vehiculo = new Vehiculo
+                        new Vehiculo
                         {
-                            placa = vehiculoVM.placa,
-                            tipo_vehiculo = vehiculoVM.tipo_vehiculo,
+                            placa = modelo.placa1,
+                            tipo_vehiculo = modelo.tipo_vehiculo1,
                             id_usuario = usuario.id_usuario
-                        };
-                        vehiculos.Add(vehiculo);
-                    }
+                        },
+                        new Vehiculo
+                        {
+                            placa = modelo.placa2,
+                            tipo_vehiculo = modelo.tipo_vehiculo2,
+                            id_usuario = usuario.id_usuario
+                        }
+                    };
 
                     await _appDBcontext.Vehiculos.AddRangeAsync(vehiculos);
                     await _appDBcontext.SaveChangesAsync();
@@ -81,9 +88,56 @@ namespace ParqueoApp3.Controllers
             }
         }
 
-       
         [HttpPut]
-        
+        //En este metodo se requiere modificar los datos de un usuario especifico y las placas que este tiene asociadas
+
+        public async Task<IActionResult> AdministrarUsuarios(AdministrarUsuariosVM modelo, string correo)
+        {
+
+            Usuario usuario = await _appDBcontext.Usuarios.FindAsync(modelo.correo);
+            if (usuario == null) return NotFound();
+            usuario.nombre = modelo.nombre;
+            usuario.apellido = modelo.apellido;
+            usuario.correo = modelo.correo;
+            usuario.password = modelo.password;
+            usuario.role = modelo.role;
+            _appDBcontext.Usuarios.Update(usuario);
+            // Update the vehicles associated with the user
+            var vehiculos = await _appDBcontext.Vehiculos.Where(v => v.id_usuario == usuario.id_usuario).ToListAsync();
+            if (vehiculos.Count > 0)
+            {
+                vehiculos[0].placa = modelo.placa1;
+                vehiculos[0].tipo_vehiculo = modelo.tipo_vehiculo1;
+                _appDBcontext.Vehiculos.Update(vehiculos[0]);
+            }
+            if (vehiculos.Count > 1)
+            {
+                vehiculos[1].placa = modelo.placa2;
+                vehiculos[1].tipo_vehiculo = modelo.tipo_vehiculo2;
+                _appDBcontext.Vehiculos.Update(vehiculos[1]);
+            }
+            await _appDBcontext.SaveChangesAsync();
+            return RedirectToAction("AdministrarUsuarios");
+        }
+
+        [HttpDelete]
+        public async Task<IActionResult> AdministrarUsuarios(string correo)
+        {
+            Usuario usuario = await _appDBcontext.Usuarios.FindAsync(correo);
+            if (usuario == null) return NotFound();
+
+            // Find and remove associated vehicles
+            var vehiculos = await _appDBcontext.Vehiculos.Where(v => v.id_usuario == usuario.id_usuario).ToListAsync();
+            _appDBcontext.Vehiculos.RemoveRange(vehiculos);
+
+            _appDBcontext.Usuarios.Remove(usuario);
+            await _appDBcontext.SaveChangesAsync();
+            return RedirectToAction("Index", "Home");
+        }
+
+
+        [HttpPut]
+
         public async Task<IActionResult> PerfilUsuario(PerfilVM modelo)
         {
             Usuario usuario = await _appDBcontext.Usuarios.FindAsync(modelo.correo);
@@ -196,7 +250,7 @@ namespace ParqueoApp3.Controllers
             if (nombre_parqueo == null) return NotFound();
 
 
-            if(UserEmail == null || UserRole == null) return Unauthorized();
+            if (UserEmail == null || UserRole == null) return Unauthorized();
 
 
             // Add the assigned parqueo to the user's claims
@@ -216,7 +270,7 @@ namespace ParqueoApp3.Controllers
             return RedirectToAction("Index", "Home");
         }
 
-       
+
         [HttpGet]
         public async Task<IActionResult> Parqueos()
         {
@@ -243,7 +297,7 @@ namespace ParqueoApp3.Controllers
             await _appDBcontext.SaveChangesAsync();
             return RedirectToAction("Index", "Home");
         }
-  
+
         [HttpPost]
         public async Task<IActionResult> Espacios(Espacio modelo)
         {
