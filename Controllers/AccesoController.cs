@@ -7,28 +7,38 @@ using System.Threading.Tasks;
 using System.Security.Claims;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
+using AspNetCoreGeneratedDocument;
 
 namespace ParqueoApp3.Controllers
 {
     public class AccesoController : Controller
     {
         private readonly AppDBContext _appDBcontext;
-        public AccesoController(AppDBContext appDBContext) {
+        public AccesoController(AppDBContext appDBContext)
+        {
             _appDBcontext = appDBContext;
         }
         [HttpGet]
-        public IActionResult Registrarse()
+        public IActionResult AdministrarUsuarios()
         {
+            ViewData["Usuarios"] = _appDBcontext.Usuarios.ToList();
+            ViewData["Vehiculos"] = _appDBcontext.Vehiculos.ToList();
             return View();
         }
+        // ...
+
         [HttpPost]
-        public async Task<IActionResult> Registrarse(UsuarioVM modelo)
+        public async Task<IActionResult> AdministrarUsuarios(AdministrarUsuariosVM modelo)
         {
-            if(modelo.password != modelo.confirmarClave)
+            // Check if the email already exists
+            bool emailExists = await _appDBcontext.Usuarios.AnyAsync(u => u.correo == modelo.correo);
+            if (emailExists)
             {
-                ViewData["Mensaje"] = "Las contraseñas no coinciden";
+                ViewData["Mensaje"] = "El correo ya está registrado";
                 return View();
             }
+
+            // Create new user
             Usuario usuario = new Usuario
             {
                 nombre = modelo.nombre,
@@ -38,16 +48,96 @@ namespace ParqueoApp3.Controllers
                 role = modelo.role
             };
 
-            await _appDBcontext.Usuarios.AddAsync(usuario);
-            await _appDBcontext.SaveChangesAsync();
+            using (var transaction = await _appDBcontext.Database.BeginTransactionAsync())
+            {
+                try
+                {
+                    await _appDBcontext.Usuarios.AddAsync(usuario);
+                    await _appDBcontext.SaveChangesAsync();
 
-            if(usuario.id_usuario != 0) return RedirectToAction("LogIn", "Acceso");
-            ViewData["Mensaje"] = "Error al registrar el usuario";
+                    var vehiculos = new List<Vehiculo>
+                    {
+                        new Vehiculo
+                        {
+                            placa = modelo.placa1,
+                            tipo_vehiculo = modelo.tipo_vehiculo1,
+                            id_usuario = usuario.id_usuario
+                        },
+                        new Vehiculo
+                        {
+                            placa = modelo.placa2,
+                            tipo_vehiculo = modelo.tipo_vehiculo2,
+                            id_usuario = usuario.id_usuario
+                        }
+                    };
 
-            return View();
+                    await _appDBcontext.Vehiculos.AddRangeAsync(vehiculos);
+                    await _appDBcontext.SaveChangesAsync();
+
+                    await transaction.CommitAsync();
+
+                    ViewData["Mensaje"] = "Usuario y vehículos registrados exitosamente";
+                    return RedirectToAction("AdministrarUsuarios");
+                }
+                catch
+                {
+                    await transaction.RollbackAsync();
+                    ViewData["Mensaje"] = "Ocurrió un error al registrar el usuario y los vehículos.";
+                    return View();
+                }
+            }
         }
+
         [HttpPut]
-        
+        //En este metodo se requiere modificar los datos de un usuario especifico y las placas que este tiene asociadas
+
+        public async Task<IActionResult> AdministrarUsuarios(AdministrarUsuariosVM modelo, string correo)
+        {
+
+            Usuario usuario = await _appDBcontext.Usuarios.FindAsync(modelo.correo);
+            if (usuario == null) return NotFound();
+            usuario.nombre = modelo.nombre;
+            usuario.apellido = modelo.apellido;
+            usuario.correo = modelo.correo;
+            usuario.password = modelo.password;
+            usuario.role = modelo.role;
+            _appDBcontext.Usuarios.Update(usuario);
+            // Update the vehicles associated with the user
+            var vehiculos = await _appDBcontext.Vehiculos.Where(v => v.id_usuario == usuario.id_usuario).ToListAsync();
+            if (vehiculos.Count > 0)
+            {
+                vehiculos[0].placa = modelo.placa1;
+                vehiculos[0].tipo_vehiculo = modelo.tipo_vehiculo1;
+                _appDBcontext.Vehiculos.Update(vehiculos[0]);
+            }
+            if (vehiculos.Count > 1)
+            {
+                vehiculos[1].placa = modelo.placa2;
+                vehiculos[1].tipo_vehiculo = modelo.tipo_vehiculo2;
+                _appDBcontext.Vehiculos.Update(vehiculos[1]);
+            }
+            await _appDBcontext.SaveChangesAsync();
+            return RedirectToAction("AdministrarUsuarios");
+        }
+
+        [HttpDelete]
+        public async Task<IActionResult> AdministrarUsuarios(string correo)
+        {
+            Usuario usuario = await _appDBcontext.Usuarios.FindAsync(correo);
+            if (usuario == null) return NotFound();
+
+            // Find and remove associated vehicles
+            var vehiculos = await _appDBcontext.Vehiculos.Where(v => v.id_usuario == usuario.id_usuario).ToListAsync();
+            _appDBcontext.Vehiculos.RemoveRange(vehiculos);
+
+            _appDBcontext.Usuarios.Remove(usuario);
+            await _appDBcontext.SaveChangesAsync();
+            return RedirectToAction("Index", "Home");
+        }
+
+
+        [HttpPut]
+
         public async Task<IActionResult> PerfilUsuario(PerfilVM modelo)
         {
             Usuario usuario = await _appDBcontext.Usuarios.FindAsync(modelo.correo);
@@ -75,19 +165,30 @@ namespace ParqueoApp3.Controllers
         [HttpGet]
         public IActionResult LogIn()
         {
-            if(User.Identity!.IsAuthenticated) return RedirectToAction("Index", "Home");
+            if (User.Identity!.IsAuthenticated) return RedirectToAction("Index", "Home");
             return View();
         }
 
         [HttpPost]
         public async Task<IActionResult> LogIn(LogInVM modelo)
-        { 
-            Usuario? usuario_encontrado = await _appDBcontext.Usuarios.Where(u => u.correo == modelo.correo && u.password == modelo.password).FirstOrDefaultAsync();
+        {
+            Usuario? usuario_encontrado = await _appDBcontext.Usuarios
+                .Where(u => u.correo == modelo.correo && u.password == modelo.password)
+                .FirstOrDefaultAsync();
+            TempData["UserEmail"] = usuario_encontrado.correo;
+            TempData["UserRole"] = usuario_encontrado.role;
             if (usuario_encontrado == null)
             {
                 ViewData["Mensaje"] = "Usuario no encontrado";
                 return View();
             }
+
+            if (usuario_encontrado.password == "default_password") // Assuming "default_password" is the initial password
+            {
+                ViewData["Mensaje"] = "Debe cambiar su contraseña la primera vez que ingresa";
+                return RedirectToAction("CambiarContrasena", "Acceso");
+            }
+
 
             List<Claim> claims = new List<Claim>()
             {
@@ -99,16 +200,90 @@ namespace ParqueoApp3.Controllers
             {
                 AllowRefresh = true,
             };
+            if (usuario_encontrado.role == "Seguridad")
+            {
+
+                ViewData["Mensaje"] = "Debe seleccionar el parqueo al que está asignado";
+                return RedirectToAction("SeleccionarParqueo", "Acceso");
+            }
             await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, new ClaimsPrincipal(claimsIdentity), authProperties);
 
             return RedirectToAction("Index", "Home");
         }
+
         [HttpGet]
-       
-        public async Task<IActionResult> AdminParqueos()
+        public IActionResult CambiarContrasena(string correo)
+        {
+            ViewData["Correo"] = correo;
+            return View();
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> CambiarContrasena(string correo, string nuevaContrasena)
+        {
+            Usuario? usuario = await _appDBcontext.Usuarios.Where(u => u.correo == correo).FirstOrDefaultAsync();
+            if (usuario == null) return NotFound();
+
+            usuario.password = nuevaContrasena;
+            _appDBcontext.Usuarios.Update(usuario);
+            await _appDBcontext.SaveChangesAsync();
+
+            return RedirectToAction("LogIn", "Acceso");
+        }
+
+        [HttpGet]
+        public IActionResult SeleccionarParqueo()
+        {
+            if (User.Identity!.IsAuthenticated) return RedirectToAction("Index", "Home");
+
+            var parqueos = _appDBcontext.Parqueos.ToList();
+            ViewData["Parqueos"] = parqueos;
+            ViewData["UserEmail"] = TempData["UserEmail"];
+            ViewData["UserRole"] = TempData["UserRole"];
+
+            return View();
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> SeleccionarParqueo(string nombre_parqueo, string UserEmail, string UserRole)
+        {
+            if (nombre_parqueo == null) return NotFound();
+
+
+            if (UserEmail == null || UserRole == null) return Unauthorized();
+
+
+            // Add the assigned parqueo to the user's claims
+            List<Claim> claims = new List<Claim>
+            {
+                new Claim(ClaimTypes.Name, UserEmail),
+                new Claim(ClaimTypes.Role, UserRole),
+                new Claim(ClaimTypes.StreetAddress, nombre_parqueo)
+            };
+            ClaimsIdentity claimsIdentity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
+            AuthenticationProperties authProperties = new AuthenticationProperties
+            {
+                AllowRefresh = true,
+            };
+            await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, new ClaimsPrincipal(claimsIdentity), authProperties);
+
+            return RedirectToAction("Index", "Home");
+        }
+
+
+        [HttpGet]
+        public async Task<IActionResult> Parqueos()
         {
             var parqueos = await _appDBcontext.Parqueos.ToListAsync();
-            return View(parqueos);
+            var espacios = await _appDBcontext.Espacios.ToListAsync();
+
+            var viewModel = new ParqueosViewModel
+            {
+                Parqueos = parqueos,
+                Espacios = espacios
+            };
+
+            return View(viewModel);
         }
         [HttpPost]
         public async Task<IActionResult> Parqueos(Parqueo modelo)
@@ -122,12 +297,7 @@ namespace ParqueoApp3.Controllers
             await _appDBcontext.SaveChangesAsync();
             return RedirectToAction("Index", "Home");
         }
-        [HttpGet]
-        public async Task<IActionResult> AdminEspacios()
-        {
-            var espacios = await _appDBcontext.Espacios.ToListAsync();
-            return View(espacios);
-        }
+
         [HttpPost]
         public async Task<IActionResult> Espacios(Espacio modelo)
         {
@@ -155,5 +325,10 @@ namespace ParqueoApp3.Controllers
 
             return View(espaciosContados);
         }
+    }
+    public class ParqueosViewModel
+    {
+        public List<Parqueo> Parqueos { get; set; }
+        public List<Espacio> Espacios { get; set; }
     }
 }

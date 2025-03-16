@@ -42,38 +42,48 @@
 						<div class="col-md-6">
 							<button class="btn btn-primary btn-block" type="submit">Eliminar</button>
 						</div>
-
                     </div>
-					<div class="col-md-6">
-						<h3>Parqueos</h3>
-                        <table>
-                            <thead>
-                                <tr>
-                                    <th>Tipo de Espacio</th>
-                                    <th>ID Parqueo</th>
-                                    <th>Cantidad</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                @foreach (var item in Espacios)
-                                {
-                                    <tr>
-                                        <td>@item.tipo_espacio</td>
-                                        <td>@item.id_parqueo</td>
-                                        <td>@item.disponibilidad</td>
-                                    </tr>
-                                }
-                            </tbody>
-                        </table>
-
-
-					</div>
 				</div>
 			</div>
         </div>
-   
-       
-		
+        <div class="col-md-6">
+			<div class="card">
+				<div class="card-header">
+					<h3>Espacios</h3>
+				</div>
+				<div class="card-body">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Tipo de Espacio</th>
+                                <th>ID Parqueo</th>
+                                <th>Cantidad</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var item in Espacios)
+                            {
+                                <tr>
+                                    <td>@item.tipo_espacio</td>
+                                    <td>@item.id_parqueo</td>
+                                    <td>@item.disponibilidad</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                    <div class="row accordion-body">
+                        <input class="form-control mb-3" type="text" placeholder="Tipo de espacio" required asp-for="tipo_espacio" />
+                        <input class="form-control mb-3" type="text" placeholder="Disponibilidad" required asp-for="disponible" />
+                        <div class="col-md-6">
+                            <button class="btn btn-primary btn-block" type="submit">Agregar</button>
+                        </div>
+                        <div class="col-md-6">
+                            <button class="btn btn-primary btn-block" type="submit">Eliminar</button>
+                        </div>
+                    </div>
+				</div>
+			</div>
+        </div>
 	</div>
 	<script src="~/lib/jquery/dist/jquery.min.js"></script>
 	<script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>

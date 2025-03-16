@@ -1,13 +1,20 @@
 ﻿@using System.Security.Claims
+@inject Microsoft.AspNetCore.Http.IHttpContextAccessor HttpContextAccessor
 
 @{
-    ViewData["Title"] = "Home Page";
+    ViewData["Title"] = "Inicio";
+   
 }
 
 <div class="text-center">
-	@if (User.Identity!.IsAuthenticated)
-	{
-		<h1 class="display-4">Bienvenido, @User.Claims.Where(c => c.Type == ClaimTypes.Name).Select(c => c.Value).SingleOrDefault()</h1>
-	}
+    @if (User.Identity!.IsAuthenticated)
+    {
+        <h1 class="display-4">Bienvenido, @User.Claims.Where(c => c.Type == ClaimTypes.Name).Select(c => c.Value).SingleOrDefault()</h1>
+        <h3 class="display-4">Rol: @User.Claims.Where(c => c.Type == ClaimTypes.Role).Select(c => c.Value).SingleOrDefault()</h3>
+    }
+    @if (User.Claims.Any(c => c.Type == ClaimTypes.Role && c.Value == "Seguridad"))
+    {
+        <h4 class="display-5">Parqueo designado: @User.Claims.Where(c => c.Type == ClaimTypes.StreetAddress).Select(c => c.Value).SingleOrDefault() </h4>
 
+    }
 </div>
