@@ -45,6 +45,29 @@ if (!app.Environment.IsDevelopment())
 }
 app.UseStaticFiles();
 
+app.Use(async (context, next) =>
+{
+    if (context.Request.Method == "POST" && context.Request.Form["_method"] == "DELETE")
+    {
+        context.Request.Method = "DELETE";
+    }
+    else if (context.Request.Method == "POST" && context.Request.Form["_method"] == "PUT")
+    {
+        context.Request.Method = "PUT";
+    }
+
+    else if (next != null)
+    {
+        await next();
+    }
+    else
+    {
+        // Handle the case where next is null
+        context.Response.StatusCode = 500;
+    }
+});
+
+
 app.UseRouting();
 app.UseAuthentication();
 app.UseAuthorization();

@@ -26,6 +26,10 @@ public class HomeController : Controller
     {
         return View();
     }
+    public IActionResult ModificarUsuarios()
+    {
+        return View();
+    }
     public IActionResult PerfilUsuario()
     {
         return View();

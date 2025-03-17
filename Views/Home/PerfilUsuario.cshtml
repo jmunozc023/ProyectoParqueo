@@ -16,14 +16,13 @@
 				<div class="card-body">
 					
                     <form asp-controller="Home" asp-action="PerfilUsuario" method="post">
-                        <input type="hidden" name="_method" value="put"/>
-                        <input class="form-control mb-3" type="text" placeholder="Nombre" required asp-for="nombre"  />
-						<input class="form-control mb-3" type="text" placeholder="Apellido" required asp-for="apellido"  />
-						<input class="form-control mb-3" type="email" placeholder="Correo electronico" required asp-for="correo" />
-                        <input class="form-control mb-3" type="password" placeholder="Password" required asp-for="password" />
-						<input class="form-control mb-3" type="text" placeholder="Rol" required asp-for="role" />
-						<input class="form-control mb-3" type="text" placeholder="Placa 1" required asp-for="placa" />
-						<input class="form-control mb-3" type="text" placeholder="Placa 2" required asp-for="placa2" />
+                        <input class="form-control mb-3" type="text" placeholder="Nombre" required asp-for="nombre" value="@Model.nombre" />
+						<input class="form-control mb-3" type="text" placeholder="Apellido" required asp-for="apellido" value="@Model.apellido" />
+						<input class="form-control mb-3" type="email" placeholder="Correo electronico" required asp-for="correo" value="@Model.correo" />
+                        <input class="form-control mb-3" type="password" placeholder="Password" required asp-for="password" value="@Model.password" />
+						<input class="form-control mb-3" type="text" placeholder="Rol" required asp-for="role" value="@Model.role" />
+						<input class="form-control mb-3" type="text" placeholder="Placa 1" required asp-for="placa" value="@Model.placa" />
+						<input class="form-control mb-3" type="text" placeholder="Placa 2" required asp-for="placa2" value="@Model.placa2" />
                         <button class="btn btn-primary btn-block" type="submit">Modificar</button>
 
                         @* @if (ViewData["Mensaje"] != null)
