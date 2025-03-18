@@ -182,6 +182,31 @@ namespace ParqueoApp3.Controllers
         }
         // Esta presentando errores----------------------------------------------
 
+        [HttpGet]
+        public async Task<IActionResult> PerfilUsuario()
+        {
+            // Obtener el correo del usuario autenticado desde las claims
+            var userEmail = User.FindFirst(ClaimTypes.Name)?.Value;
+            if (userEmail == null) return Unauthorized();
+            var usuario = await _appDBcontext.Usuarios.FirstOrDefaultAsync(u => u.correo == userEmail);
+            if (usuario == null) return NotFound();
+            var vehiculos = await _appDBcontext.Vehiculos.Where(v => v.id_usuario == usuario.id_usuario).ToListAsync();
+
+            var modelo = new AdministrarUsuariosVM
+            {
+                nombre = usuario.nombre,
+                apellido = usuario.apellido,
+                correo = usuario.correo,
+                password = usuario.password,
+                placa1 = vehiculos.Count > 0 ? vehiculos[0].placa : null,
+                tipo_vehiculo1 = vehiculos.Count > 0 ? vehiculos[0].tipo_vehiculo : null,
+                placa2 = vehiculos.Count > 1 ? vehiculos[1].placa : null,
+                tipo_vehiculo2 = vehiculos.Count > 1 ? vehiculos[1].tipo_vehiculo : null
+            };
+
+            return View(modelo);
+        }
+
         // Crear metodos para el perfil de usuario registrado en el sistema, el cual permita modificar los datos del usuario y los vehiculos asociados a este
 
         [HttpPost]

@@ -15,7 +15,7 @@
 				</div>
 				<div class="card-body">
 					
-                    <form asp-controller="Home" asp-action="PerfilUsuario" method="post">
+                    <form asp-controller="Home" asp-action="PerfilUsuario" method="get">
                         <input class="form-control mb-3" type="text" placeholder="Nombre" required asp-for="nombre" value="@Model.nombre" />
 						<input class="form-control mb-3" type="text" placeholder="Apellido" required asp-for="apellido" value="@Model.apellido" />
 						<input class="form-control mb-3" type="email" placeholder="Correo electronico" required asp-for="correo" value="@Model.correo" />
