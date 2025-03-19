@@ -17,6 +17,7 @@
                     </div>
                     <div class="card-body">
                         <form asp-controller="Acceso" asp-action="CambiarContrasena" method="post">
+                            <input type="hidden" asp-for="Correo" />
                             <input class="form-control mb-3" type="password" placeholder="Contraseña actual" asp-for="ContrasenaActual" required />
                             <input class="form-control mb-3" type="password" placeholder="Nueva Contraseña" asp-for="NuevaContrasena" required />
                             <input class="form-control mb-3" type="password" placeholder="Confirme su nueva Contraseña" asp-for="ConfirmarContrasena" required />

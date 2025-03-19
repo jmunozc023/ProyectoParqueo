@@ -1,0 +1,31 @@
+﻿@using ParqueoApp3.ViewModels
+@model List<ParqueosConEspaciosVM>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>Nombre</th>
+            <th>Ubicación</th>
+            <th>Espacios (Por Tipo)</th>
+            <th>Acciones</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var parqueo in Model)
+        {
+            <tr>
+                <td>@parqueo.nombre_parqueo</td>
+                <td>@parqueo.ubicacion</td>
+                <td>
+                    @foreach (var espacio in parqueo.Espacios)
+                    {
+                        <p>@espacio.tipo_espacio: @espacio.cantidad (@(espacio.disponibilidad ? "Disponible" : "Ocupado"))</p>
+                    }
+                </td>
+                <td>
+                    <a asp-action="EditarParqueo" asp-route-id="@parqueo.id_parqueo" class="btn btn-primary">Editar</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

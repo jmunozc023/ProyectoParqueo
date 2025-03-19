@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using ParqueoApp3.Data;
 
@@ -11,9 +12,11 @@ using ParqueoApp3.Data;
 namespace ParqueoApp3.Migrations
 {
     [DbContext(typeof(AppDBContext))]
-    partial class AppDBContextModelSnapshot : ModelSnapshot
+    [Migration("20250319083515_AgregarRequiereCambioContrasena")]
+    partial class AgregarRequiereCambioContrasena
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -59,9 +62,6 @@ namespace ParqueoApp3.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("id_espacio"));
 
-                    b.Property<int>("Parqueoid_parqueo")
-                        .HasColumnType("int");
-
                     b.Property<bool>("disponibilidad")
                         .HasColumnType("bit");
 
@@ -74,8 +74,6 @@ namespace ParqueoApp3.Migrations
                         .HasColumnType("nvarchar(50)");
 
                     b.HasKey("id_espacio");
-
-                    b.HasIndex("Parqueoid_parqueo");
 
                     b.HasIndex("id_parqueo");
 
@@ -191,19 +189,11 @@ namespace ParqueoApp3.Migrations
 
             modelBuilder.Entity("ParqueoApp3.Models.Espacio", b =>
                 {
-                    b.HasOne("ParqueoApp3.Models.Parqueo", "Parqueo")
-                        .WithMany("Espacios")
-                        .HasForeignKey("Parqueoid_parqueo")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
                     b.HasOne("ParqueoApp3.Models.Parqueo", null)
                         .WithMany()
                         .HasForeignKey("id_parqueo")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-
-                    b.Navigation("Parqueo");
                 });
 
             modelBuilder.Entity("ParqueoApp3.Models.Vehiculo", b =>
@@ -213,11 +203,6 @@ namespace ParqueoApp3.Migrations
                         .HasForeignKey("id_usuario")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-                });
-
-            modelBuilder.Entity("ParqueoApp3.Models.Parqueo", b =>
-                {
-                    b.Navigation("Espacios");
                 });
 #pragma warning restore 612, 618
         }

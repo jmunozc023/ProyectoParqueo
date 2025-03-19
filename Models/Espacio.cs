@@ -6,5 +6,6 @@
         public string tipo_espacio { get; set; }
         public bool disponibilidad { get; set; }
         public int id_parqueo { get; set; }
+        public Parqueo Parqueo { get; set; }
     }
 }

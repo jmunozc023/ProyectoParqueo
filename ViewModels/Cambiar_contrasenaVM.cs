@@ -4,6 +4,7 @@ namespace ParqueoApp3.ViewModels
 {
     public class Cambiar_contrasenaVM
     {
+        public string Correo { get; set; }
         [Required(ErrorMessage = "El campo es obligatorio")]
         public string ContrasenaActual { get; set; }
         [Required(ErrorMessage = "El campo es obligatorio")]
