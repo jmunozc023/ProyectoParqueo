@@ -36,7 +36,7 @@ public class HomeController : Controller
         return View();
     }
 
-    [Authorize (Roles ="Administrador")]
+    [Authorize (Roles = "Administrador")]
     public IActionResult Parqueos()
     {
         return View();

@@ -8,6 +8,7 @@ using System.Security.Claims;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using AspNetCoreGeneratedDocument;
+using Microsoft.AspNetCore.Authorization;
 
 namespace ParqueoApp3.Controllers
 {
@@ -18,6 +19,7 @@ namespace ParqueoApp3.Controllers
         {
             _appDBcontext = appDBContext;
         }
+        [Authorize (Roles = "Administrador")]
         [HttpGet]
         public IActionResult AdministrarUsuarios() // Método para mostrar la vista de administración de usuarios
         {
@@ -25,7 +27,7 @@ namespace ParqueoApp3.Controllers
             ViewData["Vehiculos"] = _appDBcontext.Vehiculos.ToList(); // Obtiene la lista de vehículos y la asigna a la vista
             return View(); // Devuelve la vista
         }
-
+        [Authorize(Roles = "Administrador")]
         [HttpPost]
         public async Task<IActionResult> AdministrarUsuarios(AdministrarUsuariosVM modelo) // Método para registrar un usuario y sus vehículos
         {
@@ -95,7 +97,7 @@ namespace ParqueoApp3.Controllers
                 }
             }
         }
-
+        [Authorize(Roles = "Administrador")]
         [HttpGet]
         public async Task<IActionResult> ModificarUsuarios(string correo) // Método para mostrar la vista de modificación de usuarios
         {
@@ -119,6 +121,7 @@ namespace ParqueoApp3.Controllers
 
             return View("ModificarUsuarios", modelo); // Devuelve la vista con el modelo
         }
+        [Authorize(Roles = "Administrador")]
         [HttpPost]
         public async Task<IActionResult> ModificarUsuarios(AdministrarUsuariosVM modelo, string _method) // Método para modificar un usuario y sus vehículos
         {
@@ -160,8 +163,8 @@ namespace ParqueoApp3.Controllers
             return BadRequest(); // Si el método no es PUT, devuelve un error 400
         }
 
-       
 
+        [Authorize(Roles = "Administrador")]
         [HttpDelete]
         public async Task<IActionResult> AdministrarUsuarios(int id_usuario) // Método para eliminar un usuario y sus vehículos
         {
@@ -179,7 +182,7 @@ namespace ParqueoApp3.Controllers
             return RedirectToAction("AdministrarUsuarios"); // Redirige a la vista de administración de usuarios
         }
         // Esta presentando errores----------------------------------------------
-
+        [Authorize]
         [HttpGet]
         public async Task<IActionResult> PerfilUsuario() // Método para mostrar la vista de perfil de usuario
         {
@@ -204,7 +207,7 @@ namespace ParqueoApp3.Controllers
 
             return View(modelo);
         }
-
+        [Authorize]
         [HttpPost]
         public async Task<IActionResult> PerfilUsuario(PerfilVM modelo) // Método para modificar los datos de un usuario y sus vehículos
     
@@ -396,6 +399,7 @@ namespace ParqueoApp3.Controllers
 
             return RedirectToAction("Index", "Home");// Redirige a la página principal
         }
+        [Authorize(Roles = "Administrador")]
         [HttpGet]
         public async Task<IActionResult> Parqueos()
         {
@@ -413,7 +417,7 @@ namespace ParqueoApp3.Controllers
             return View(viewModel);
         }
 
-
+        [Authorize(Roles = "Administrador")]
         [HttpPost]
         public async Task<IActionResult> Parqueos(ParqueosConEspaciosVM modelo)
         {
@@ -438,7 +442,7 @@ namespace ParqueoApp3.Controllers
 
             return RedirectToAction("Parqueos");
         }
-
+        [Authorize(Roles = "Administrador")]
         [HttpGet]
         public async Task<IActionResult> EditarEspacios(int parqueoId)
         {
@@ -465,7 +469,7 @@ namespace ParqueoApp3.Controllers
         }
 
 
-
+        [Authorize(Roles = "Administrador")]
         [HttpDelete]
         public async Task<IActionResult> EliminarParqueos(int parqueoId)
         {
@@ -485,7 +489,7 @@ namespace ParqueoApp3.Controllers
 
 
 
-
+        [Authorize(Roles = "Administrador")]
         [HttpPost]
         public async Task<IActionResult> EditarEspacios(int parqueoId, List<EspaciosVM> espaciosActualizados)
         {
