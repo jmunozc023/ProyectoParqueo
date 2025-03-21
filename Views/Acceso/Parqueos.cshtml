@@ -1,0 +1,86 @@
+﻿@using ParqueoApp3.ViewModels
+@model ParqueoApp3.ViewModels.ParqueosConEspaciosVM
+
+<h1>Creacion de parqueos</h1>
+<div class="card">
+    <div class="card-body">
+        <form asp-action="Parqueos" method="post">
+            <div class="form-group">
+                <label for="NombreParqueo">Nombre del Parqueo</label>
+                <input asp-for="nombre_parqueo" class="form-control" value="" />
+            </div>
+            <div class="form-group">
+                <label for="Ubicacion">Ubicación</label>
+                <input asp-for="ubicacion" class="form-control" value="" />
+            </div>
+            <div class="form-group">
+                <label>Espacios por Tipo</label>
+                <input type="hidden" name="Espacios[0].tipo_espacio" value="Motocicleta" />
+                <input type="hidden" name="Espacios[1].tipo_espacio" value="Automóvil" />
+                <input type="hidden" name="Espacios[2].tipo_espacio" value="Discapacitados" />
+
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Tipo de Espacio</th>
+                            <th>Cantidad</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Motocicleta</td>
+                            <td><input name="Espacios[0].cantidad" class="form-control" /></td>
+                        </tr>
+                        <tr>
+                            <td>Automóvil</td>
+                            <td><input name="Espacios[1].cantidad" class="form-control" /></td>
+                        </tr>
+                        <tr>
+                            <td>Discapacitados</td>
+                            <td><input name="Espacios[2].cantidad" class="form-control" /></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <button type="submit" class="btn btn-success">Guardar</button>
+          
+        </form>
+        <br />
+        <hr />
+        <h2>Lista de Parqueos</h2>
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Nombre del Parqueo</th>
+                    <th>Ubicación</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (ViewData["ParqueosVM"] != null)
+                {
+                    var parqueos = ViewData["ParqueosVM"] as List<ParqueoApp3.Models.Parqueo>;
+                    foreach (var parqueo in parqueos)
+                    {
+                        <tr>
+                            <td>@parqueo.nombre_parqueo</td>
+                            <td>@parqueo.ubicacion</td>
+                            <td>
+                                <a asp-action="EditarEspacios" asp-route-parqueoId="@parqueo.id_parqueo" class="btn btn-info">Edicion de parqueos</a>
+                                <form asp-action="EliminarParqueos" method="post" onsubmit="return confirm('Esta seguro que desea eliminar este usuario?');" >
+                                    <input type="hidden" name="_method" value="DELETE" />
+                                    <input type="hidden" name="parqueoId" value="@parqueo.id_parqueo" />
+                                    <button type="submit" class="btn btn-danger">Eliminar</button>
+                                </form>
+
+                            </td>
+                        </tr>
+                    }
+                }
+            </tbody>
+        </table>
+        @if (TempData["Message"] != null)
+        {
+            <div class="alert alert-success">@TempData["Message"]</div>
+        }
+    </div>
+</div>

@@ -396,35 +396,32 @@ namespace ParqueoApp3.Controllers
 
             return RedirectToAction("Index", "Home");// Redirige a la página principal
         }
-
         [HttpGet]
         public async Task<IActionResult> Parqueos()
         {
             var parqueos = await _appDBcontext.Parqueos
-                .Include(p => p.Espacios) // Incluye los espacios relacionados
+                .Include(p => p.Espacios)
                 .ToListAsync();
 
-            var viewModel = parqueos.Select(p => new ParqueosConEspaciosVM
+            ViewData["ParqueosVM"] = parqueos;
+
+            var viewModel = new ParqueosConEspaciosVM
             {
-                id_parqueo = p.id_parqueo,
-                nombre_parqueo = p.nombre_parqueo,
-                ubicacion = p.ubicacion,
-                Espacios = p.Espacios
-                    .GroupBy(e => e.tipo_espacio)
-                    .Select(g => new EspaciosVM
-                    {
-                        tipo_espacio = g.Key,
-                        cantidad = g.Count(),
-                        disponibilidad = g.Any(e => e.disponibilidad) // Muestra si hay al menos un espacio disponible
-                    }).ToList()
-            }).ToList();
+                Espacios = new List<EspaciosVM>()
+            };
 
             return View(viewModel);
         }
 
+
         [HttpPost]
-        public async Task<IActionResult> CrearParqueo(ParqueosConEspaciosVM modelo)
+        public async Task<IActionResult> Parqueos(ParqueosConEspaciosVM modelo)
         {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
             var parqueo = new Parqueo
             {
                 nombre_parqueo = modelo.nombre_parqueo,
@@ -441,6 +438,53 @@ namespace ParqueoApp3.Controllers
 
             return RedirectToAction("Parqueos");
         }
+
+        [HttpGet]
+        public async Task<IActionResult> EditarEspacios(int parqueoId)
+        {
+            var parqueo = await _appDBcontext.Parqueos
+                .Include(p => p.Espacios)
+                .FirstOrDefaultAsync(p => p.id_parqueo == parqueoId);
+            if (parqueo == null) return NotFound();
+            var viewModel = new List<ParqueosConEspaciosVM>
+            {
+                new ParqueosConEspaciosVM
+                {
+                    id_parqueo = parqueo.id_parqueo,
+                    nombre_parqueo = parqueo.nombre_parqueo,
+                    ubicacion = parqueo.ubicacion,
+                    Espacios = parqueo.Espacios.Select(e => new EspaciosVM
+                    {
+                        tipo_espacio = e.tipo_espacio,
+                        cantidad = 1,
+                        disponibilidad = e.disponibilidad
+                    }).ToList()
+                }
+            };
+            return View(viewModel);
+        }
+
+
+
+        [HttpDelete]
+        public async Task<IActionResult> EliminarParqueos(int parqueoId)
+        {
+            var parqueo = await _appDBcontext.Parqueos
+                .Include(p => p.Espacios)
+                .FirstOrDefaultAsync(p => p.id_parqueo == parqueoId);
+
+            if (parqueo == null) return NotFound();
+
+            _appDBcontext.Parqueos.Remove(parqueo);
+            await _appDBcontext.SaveChangesAsync();
+
+            TempData["Message"] = "Parqueo eliminado exitosamente.";
+            return RedirectToAction("Parqueos");
+        }
+
+
+
+
 
         [HttpPost]
         public async Task<IActionResult> EditarEspacios(int parqueoId, List<EspaciosVM> espaciosActualizados)

@@ -26,6 +26,7 @@ public class HomeController : Controller
     {
         return View();
     }
+    [Authorize(Roles = "Administrador")]
     public IActionResult ModificarUsuarios()
     {
         return View();
